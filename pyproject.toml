@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "notipy"
+version = "0.0.1"
+requires-python = ">= 3.8"
+authors = [
+    {name = "Danzel Serrano", email = "danzel.serrano@gmail.com"}
+]
+description = "be connected to your long-running processes"
+readme = "README.md"
+# classifiers = []
+
+# [project.urls]
+# Homepage = 
+# Documentation = 
+# Repository = 
