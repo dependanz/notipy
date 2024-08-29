@@ -1,17 +1,6 @@
-import sys
-import ast
-import yaml
-
 from .gmail import *
 
-def Notify(config_file):
-    # Read config yaml
-    with open(config_file, 'r') as fp:
-        try:
-            config = yaml.safe_load(fp)
-        except yaml.YAMLError as exc:
-            print(exc)
-    
+def Notify(config):    
     #######################################
     # Validate source domain credentials 
     #######################################
