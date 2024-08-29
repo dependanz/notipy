@@ -1,9 +1,8 @@
 import sys
 import ast
-import smtplib
 import argparse
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+
+from .gmail import send_gmail
 
 parser = argparse.ArgumentParser(
     prog = 'notipy.email',
@@ -19,7 +18,20 @@ parser.add_argument(
 )
 parser.add_argument(
     '--gmail_app_pass',
-    required=True
+    default=None
+)
+parser.add_argument(
+    '--label',
+    default='notipy'
+)
+parser.add_argument(
+    '--subject',
+    default='Process Finished'
+)
+parser.add_argument(
+    '--messages',
+    nargs="*",
+    default=None
 )
 parser.add_argument(
     'pipe_params',
@@ -30,38 +42,23 @@ args = parser.parse_args()
 if not sys.stdin.isatty():
     args.pipe_params.extend(sys.stdin.read().splitlines())
 
-GMAIL_APP_PASS = args.gmail_app_pass
+#######################################
+# Validate source domain credentials 
+#######################################
+source_domain = args.source.split('@')[-1]
+destination_domain = args.destination.split('@')[-1]
 
-msg = MIMEMultipart('alternative')
-msg['Subject'] = "[notipy] - Process Complete"
-msg['From']    = args.source
-msg['To']      = args.destination
-
-text = "Process Complete."
-html = f"""
-    <html>
-        <head></head>
-        <body>
-            <div>
-                <h1>[notipy] - Process Complete</h1>
-                <div>
-                    {'<br>'.join(ast.literal_eval(repr(args.pipe_params)))}
-                </div>
-            </div>
-        </body>
-    </html>
-"""
-
-msg.attach(MIMEText(text, 'plain'))
-msg.attach(MIMEText(html, 'html'))
-
-with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-    smtp_server.login(
-        args.source,
-        GMAIL_APP_PASS
+if source_domain == 'gmail.com':
+    assert args.gmail_app_pass is not None
+    if args.messages is None:
+        args.messages = []
+    send_gmail(
+        source       = args.source,
+        destination  = args.destination,
+        app_password = args.gmail_app_pass,
+        label        = args.label,
+        subject      = args.subject,
+        messages     = [msg for msg in [*args.messages, *ast.literal_eval(repr(args.pipe_params))] if msg is not None]
     )
-    smtp_server.sendmail(
-        args.source,
-        args.destination,
-        msg.as_string()
-    )
+else:
+    raise ValueError("Unsupported source address domain")

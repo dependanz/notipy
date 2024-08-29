@@ -1,1 +1,1 @@
-from . import gmail
+from .core import *

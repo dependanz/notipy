@@ -17,3 +17,7 @@ readme = "README.md"
 # Homepage = 
 # Documentation = 
 # Repository = 
+
+[tool.setuptools]
+packages = ["notipy"]
+# py-modules = [notipy]
